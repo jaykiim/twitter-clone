@@ -15,7 +15,32 @@
     transition duration-200 ease-out cursor-pointer;
   }
 
-  .profilePic {
+  .circle-10 {
     @apply h-10 w-10 rounded-full;
+  }
+
+  .circle-11 {
+    @apply h-11 w-11 rounded-full;
+  }
+
+  .icon-editor {
+    @apply h-[22px] text-tweet-blue-light;
+  }
+
+  .icon-editor-container {
+    @apply w-9 h-9 rounded-full center-xy hover:bg-tweet-blue-light hover:bg-opacity-20 
+    transition ease-out cursor-pointer;
+  }
+
+  .btn-tweet {
+    @apply bg-tweet-blue-light hover:bg-tweet-blue-dark rounded-full
+    text-white font-bold  
+    cursor-pointer disabled:opacity-50 disabled:cursor-default;
+  }
+}
+
+@layer utilities {
+  .center-xy {
+    @apply flex items-center justify-center;
   }
 }

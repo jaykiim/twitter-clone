@@ -33,7 +33,7 @@ const Sidebar = () => {
         <SidebarIcon text="More" Icon={DotsCircleHorizontalIcon} />
       </div>
 
-      <button className="hidden xl:inline w-56 h-[52px] bg-[#1d9bf0] text-white font-bold rounded-full ml-auto hover:bg-tweet-blue-dark">
+      <button className="hidden xl:inline btn-tweet w-56 h-[52px] ml-auto">
         Tweet
       </button>
 
@@ -41,7 +41,7 @@ const Sidebar = () => {
         <img
           src="https://lh3.googleusercontent.com/a/AATXAJxjDEHxLArBpKJZwCFjNc9-zjQnwwkVDYceHq2C=s83-c-mo"
           alt="user-profile-picture"
-          className="profilePic xl:mr-2.5"
+          className="circle-10 xl:mr-2.5"
         />
 
         <div className="hidden xl:inline leading-5">

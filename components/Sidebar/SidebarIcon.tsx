@@ -8,7 +8,7 @@ type Props = {
 
 const SidebarIcon = ({ text, Icon, active }: Props) => {
   return (
-    <div className="hoverAnimation text-gray-light flex items-center justify-center space-x-3 xl:justify-start">
+    <div className="hoverAnimation center-xy text-gray-light space-x-3 xl:justify-start">
       <Icon className="h-7" />
       <span className={`hidden xl:inline ${active && "font-bold"}`}>
         {text}
