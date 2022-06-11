@@ -35,7 +35,7 @@
   .btn-tweet {
     @apply bg-tweet-blue-light hover:bg-tweet-blue-dark rounded-full
     text-white font-bold  
-    cursor-pointer disabled:opacity-50 disabled:cursor-default;
+    cursor-pointer disabled:opacity-50 disabled:cursor-default disabled:hover:bg-tweet-blue-light;
   }
 }
 

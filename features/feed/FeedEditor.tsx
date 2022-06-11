@@ -4,17 +4,29 @@ import {
   PhotographIcon,
   ChartBarIcon,
   CalendarIcon,
+  XIcon,
 } from "@heroicons/react/outline";
+import { Base64 } from "../../type";
 
 const FeedEditor = () => {
   const filePickerRef = useRef<HTMLInputElement>(null!);
 
   const [input, setInput] = useState("");
-  const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedImg, setSelectedImg] = useState<Base64 | null>(null);
 
   const onSelectImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.files);
+    const reader = new FileReader();
+    if (e.target.files) {
+      console.log(e.target.files[0]);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+
+    reader.onload = (readerEvent) => {
+      setSelectedImg(readerEvent.target!.result as Base64);
+    };
   };
+
+  const createPost = async () => {};
 
   return (
     <div className="p-3 overflow-y-auto border-b border-gray-700 flex space-x-3">
@@ -31,13 +43,37 @@ const FeedEditor = () => {
         {/*  */}
         {/* GUIDE 포스트 입력 ============================================================================================================================================================== */}
 
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          rows={2}
-          placeholder="What's happening?"
-          className="bg-transparent outline-none text-gray-light text-lg placeholder-gray-500 tracking-wide w-full min-h-[50px]"
-        />
+        <div className={`${selectedImg && "pb-7"} ${input && "space-y-2.5"}`}>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={2}
+            placeholder="What's happening?"
+            className="bg-transparent outline-none text-gray-light text-lg placeholder-gray-500 tracking-wide w-full min-h-[50px]"
+          />
+
+          {/* TODO 사진 */}
+
+          {selectedImg && (
+            <div className="relative">
+              {/*  */}
+              {/* TODO 닫기 버튼 */}
+
+              <div
+                onClick={() => setSelectedImg(null)}
+                className="absolute top-1 left-1 bg-[#15181c] bg-opacity-50 hover:bg-opacity-75 w-8 h-8 rounded-full center-xy cursor-pointer"
+              >
+                <XIcon className="text-white h-5" />
+              </div>
+
+              <img
+                src={selectedImg}
+                alt="uploaded-image"
+                className="rounded-2xl max-h-80 object-contain"
+              />
+            </div>
+          )}
+        </div>
 
         {/* GUIDE 버튼 목록 ========================================================================================================================================================== */}
 
@@ -81,7 +117,14 @@ const FeedEditor = () => {
             </div>
           </div>
 
-          <div className="btn-tweet px-4 py-1.5">Tweet</div>
+          {/* TODO 업로드 버튼 */}
+
+          <button
+            className="btn-tweet px-4 py-1.5"
+            disabled={!input.trim() && !selectedImg}
+          >
+            Tweet
+          </button>
         </div>
       </div>
     </div>

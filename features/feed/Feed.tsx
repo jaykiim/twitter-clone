@@ -1,5 +1,5 @@
 import React from "react";
-import FeedEditor from "../../components/FeedEditor";
+import FeedEditor from "./FeedEditor";
 import Topbar from "../../components/Topbar";
 
 const Feed = () => {
