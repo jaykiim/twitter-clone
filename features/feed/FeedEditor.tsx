@@ -1,4 +1,20 @@
 import React, { useRef, useState } from "react";
+
+// types
+import { Base64 } from "../../type";
+
+// firebase
+import { db, storage } from "../../firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
+
+// styles
 import {
   EmojiHappyIcon,
   PhotographIcon,
@@ -6,13 +22,22 @@ import {
   CalendarIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { Base64 } from "../../type";
 
 const FeedEditor = () => {
+  //
+  // input type="file" 엘리먼트 Ref
   const filePickerRef = useRef<HTMLInputElement>(null!);
 
+  // 사용자 입력 텍스트
   const [input, setInput] = useState("");
+
+  // 이미지 (dataURL)
   const [selectedImg, setSelectedImg] = useState<Base64 | null>(null);
+
+  // fatch 로드 상태
+  const [loading, setLoading] = useState(false);
+
+  // TODO 이미지 dataURL 로 읽어오기
 
   const onSelectImg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -26,7 +51,51 @@ const FeedEditor = () => {
     };
   };
 
-  const createPost = async () => {};
+  // TODO 피드 POST 요청
+
+  const createPost = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    // *** 컬렉션에 도큐먼트 추가
+
+    const docRef = await addDoc(collection(db, "posts"), {
+      // id: ,
+      // username: ,
+      // userImg: ,
+      // tag: ,
+      text: input,
+      timestamp: serverTimestamp(),
+    });
+
+    console.log("docRef", docRef);
+
+    // *** (이미지가 있을 경우) 이미지 파일 Ref
+
+    const imageRef = ref(storage, `posts/${docRef.id}/image`);
+    console.log("imageRef", imageRef);
+
+    if (selectedImg) {
+      //
+      // *** 스토리지에 이미지 업로드
+
+      await uploadString(imageRef, selectedImg, "data_url");
+      //
+      // *** 이미지 파일 url
+
+      const downloadURL = await getDownloadURL(imageRef);
+
+      // *** 도큐먼트에 이미지 추가
+
+      await updateDoc(doc(db, "posts", docRef.id), {
+        image: downloadURL,
+      });
+    }
+
+    setLoading(false);
+    setInput("");
+    setSelectedImg(null);
+  };
 
   return (
     <div className="p-3 overflow-y-auto border-b border-gray-700 flex space-x-3">
@@ -117,11 +186,12 @@ const FeedEditor = () => {
             </div>
           </div>
 
-          {/* TODO 업로드 버튼 */}
+          {/* TODO 포스트 업로드 버튼 */}
 
           <button
             className="btn-tweet px-4 py-1.5"
-            disabled={!input.trim() && !selectedImg}
+            disabled={(!input.trim() && !selectedImg) || loading}
+            onClick={createPost}
           >
             Tweet
           </button>
