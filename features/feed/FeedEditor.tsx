@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 
 // types
 import { Base64 } from "../../type";
@@ -27,6 +28,7 @@ const FeedEditor = () => {
   //
   // input type="file" 엘리먼트 Ref
   const filePickerRef = useRef<HTMLInputElement>(null!);
+  const { user } = useSession().data!;
 
   // 사용자 입력 텍스트
   const [input, setInput] = useState("");
@@ -103,8 +105,7 @@ const FeedEditor = () => {
       {/* GUIDE 프로필 사진 ============================================================================================================================================================== */}
 
       <img
-        src="https://lh3.googleusercontent.com/a/AATXAJxjDEHxLArBpKJZwCFjNc9-zjQnwwkVDYceHq2C=s83-c-mo"
-        alt="user-profile-image"
+        src={user?.image || undefined}
         className="circle-11 cursor-pointer"
       />
 

@@ -14,8 +14,11 @@ import {
   DotsCircleHorizontalIcon,
   DotsHorizontalIcon,
 } from "@heroicons/react/outline";
+import { useSession } from "next-auth/react";
 
 const Sidebar = () => {
+  const { user } = useSession().data!;
+
   return (
     <div className="hidden fixed p-2 h-full flex-col items-center sm:flex xl:items-start xl:w-[340px]">
       <div className="hoverAnimation w-14 h-14 p-0 flex items-center justify-center xl:ml-24">
@@ -39,14 +42,14 @@ const Sidebar = () => {
 
       <div className="hoverAnimation text-gray-light flex items-center justify-center mt-auto xl:ml-auto xl:-mr-5">
         <img
-          src="https://lh3.googleusercontent.com/a/AATXAJxjDEHxLArBpKJZwCFjNc9-zjQnwwkVDYceHq2C=s83-c-mo"
+          src={user?.image || undefined}
           alt="user-profile-picture"
           className="circle-10 xl:mr-2.5"
         />
 
         <div className="hidden xl:inline leading-5">
-          <h4 className="font-bold">성이름</h4>
-          <p className="text-gray-dark">tidzmtm12@gmail.com</p>
+          <h4 className="font-bold">{user?.name}</h4>
+          <p className="text-gray-dark">{user?.email}</p>
         </div>
 
         <DotsHorizontalIcon className="h-5 hidden xl:inline ml-10" />

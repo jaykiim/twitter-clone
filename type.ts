@@ -11,3 +11,16 @@ export type Post = {
   text?: string;
   image: URL;
 };
+
+type GoogleProvider = {
+  [key: string]: any;
+  id: string;
+  name: string;
+  type: string;
+  callbackUrl: URL;
+  signinUrl: URL;
+};
+
+export type Providers = {
+  google: GoogleProvider;
+};
