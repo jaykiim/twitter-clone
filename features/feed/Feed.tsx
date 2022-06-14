@@ -14,7 +14,7 @@ const Feed = () => {
       <div className="pb-72">
         {posts.map((post) => (
           // @ts-ignore
-          <Post key={post.id} post={post.data()} />
+          <Post key={post.id} postId={post.id} post={post.data()} />
         ))}
       </div>
     </div>

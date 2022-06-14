@@ -19,6 +19,19 @@ export type Post = {
   image: string;
 };
 
+export type Like = {
+  id: string;
+  username: string;
+};
+
+export type Comment = {
+  comment: string;
+  username: string;
+  tag: string;
+  userImg: string;
+  timestamp: FieldValue;
+};
+
 type GoogleProvider = {
   [key: string]: any;
   id: string;

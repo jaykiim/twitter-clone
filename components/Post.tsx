@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Moment from "react-moment";
 
@@ -17,18 +17,64 @@ import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid";
 
 // types
 import { Post } from "../type";
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useRouter } from "next/router";
+import useGetLikes from "../hooks/api/useGetLikes";
+import useGetComments from "../hooks/api/useGetComments";
 
 type Props = {
+  postId: string;
   post: Post;
   postPage: boolean;
 };
 
-const Post = ({ post, postPage }: Props) => {
+const Post = ({ postId, post, postPage }: Props) => {
+  const router = useRouter();
   const { user } = useSession().data!;
 
-  const [comments, setComments] = useState([]);
-  const [likes, setLikes] = useState([]);
+  const likes = useGetLikes(postId);
+  const comments = useGetComments(postId);
+
   const [liked, setLiked] = useState(false);
+
+  // 현재 포스트에 대한 사용자의 liked 상태 변경
+  useEffect(
+    // @ts-ignore
+    () => setLiked(likes.findIndex((like) => like.id === user.uid) !== -1),
+    [likes]
+  );
+
+  /* ==================================================================================================== 
+  ? 이벤트 핸들러
+  ==================================================================================================== */
+
+  const onCommentClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // 댓글 아이콘 클릭 시, 상세보기 이벤트 (전체 컨테이너 div 클릭) 전파 방지
+    e.stopPropagation();
+  };
+
+  const onDeleteClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    deleteDoc(doc(db, "posts", postId));
+    router.push("/");
+  };
+
+  const onLikeClick = async () => {
+    if (liked) {
+      // @ts-ignore
+      await deleteDoc(doc(db, "posts", postId, "likes", user.uid));
+    } else {
+      // @ts-ignore
+      await setDoc(doc(db, "posts", postId, "likes", user.uid), {
+        username: user?.name,
+      });
+    }
+  };
+
+  /* ==================================================================================================== 
+  ? UI 렌더 함수
+  ==================================================================================================== */
 
   const renderProfilePic = () => (
     <img
@@ -130,7 +176,10 @@ const Post = ({ post, postPage }: Props) => {
           <div className="flex items-center space-x-1 group">
             {/* @ts-ignore */}
             {user.uid === post.id ? (
-              <div className="icon-editor-container group-hover:bg-red-600/10">
+              <div
+                onClick={onDeleteClick}
+                className="icon-editor-container group-hover:bg-red-600/10"
+              >
                 <TrashIcon className="h-5 group-hover:text-red-600" />
               </div>
             ) : (
@@ -142,7 +191,10 @@ const Post = ({ post, postPage }: Props) => {
 
           {/* TODO 좋아요 */}
 
-          <div className="flex items-center space-x-1 group">
+          <div
+            onClick={onLikeClick}
+            className="flex items-center space-x-1 group"
+          >
             {/* 아이콘 */}
             <div className="icon-editor-container group-hover:bg-pink-600/10">
               {liked ? (
