@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useSession, signOut } from "next-auth/react";
 
 import SidebarIcon from "./SidebarIcon";
 
@@ -14,7 +15,6 @@ import {
   DotsCircleHorizontalIcon,
   DotsHorizontalIcon,
 } from "@heroicons/react/outline";
-import { useSession } from "next-auth/react";
 
 const Sidebar = () => {
   const { user } = useSession().data!;
@@ -40,7 +40,10 @@ const Sidebar = () => {
         Tweet
       </button>
 
-      <div className="hoverAnimation text-gray-light flex items-center justify-center mt-auto xl:ml-auto xl:-mr-5">
+      <div
+        onClick={() => signOut()}
+        className="hoverAnimation text-gray-light flex items-center justify-center mt-auto xl:ml-auto xl:-mr-5"
+      >
         <img
           src={user?.image || undefined}
           alt="user-profile-picture"

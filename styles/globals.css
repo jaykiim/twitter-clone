@@ -32,6 +32,10 @@
     transition ease-out cursor-pointer;
   }
 
+  .icon-feed-blue {
+    @apply h-5 group-hover:text-[#1d9bf0];
+  }
+
   .btn-tweet {
     @apply bg-tweet-blue-light hover:bg-tweet-blue-dark rounded-full
     text-white font-bold  

@@ -2,14 +2,21 @@ import { FieldValue } from "firebase/firestore";
 
 export type Base64 = `data:image/${string};base64${string}`;
 
+export type Session = {
+  user: {
+    [index: string]: string;
+  };
+  expires: string;
+};
+
 export type Post = {
   id: string;
   username: `${number}`;
-  userImg: URL;
+  userImg: string;
   tag: string;
   timestamp: FieldValue;
   text?: string;
-  image: URL;
+  image: string;
 };
 
 type GoogleProvider = {

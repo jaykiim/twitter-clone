@@ -20,17 +20,13 @@ export default NextAuth({
         tag = session.user.name.split(" ").join("").toLocaleLowerCase();
       }
 
-      // session.user.tag 추가
-      Object.defineProperty(session.user, "tag", {
-        value: tag,
-        writable: false,
-      });
+      // @ts-ignore
+      session.user.tag = tag;
 
-      // session.user.uid 추가
-      Object.defineProperty(session.user, "uid", {
-        value: token.sub,
-        writable: false,
-      });
+      // @ts-ignore
+      session.user.uid = token.sub;
+
+      console.log(session);
 
       return session;
     },

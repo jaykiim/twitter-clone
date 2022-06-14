@@ -44,7 +44,6 @@ const FeedEditor = () => {
   const onSelectImg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files) {
-      console.log(e.target.files[0]);
       reader.readAsDataURL(e.target.files[0]);
     }
 
@@ -60,37 +59,37 @@ const FeedEditor = () => {
     setLoading(true);
 
     // *** 컬렉션에 도큐먼트 추가
-
+    console.log("selectedImg", selectedImg);
     const docRef = await addDoc(collection(db, "posts"), {
-      // id: ,
-      // username: ,
-      // userImg: ,
-      // tag: ,
+      // @ts-ignore
+      id: user?.uid,
+      username: user?.name,
+      userImg: user?.image,
+      // @ts-ignore
+      tag: user?.tag,
       text: input,
       timestamp: serverTimestamp(),
     });
 
-    console.log("docRef", docRef);
-
     // *** (이미지가 있을 경우) 이미지 파일 Ref
 
     const imageRef = ref(storage, `posts/${docRef.id}/image`);
-    console.log("imageRef", imageRef);
 
     if (selectedImg) {
       //
       // *** 스토리지에 이미지 업로드
 
-      await uploadString(imageRef, selectedImg, "data_url");
-      //
-      // *** 이미지 파일 url
+      await uploadString(imageRef, selectedImg, "data_url").then(async () => {
+        //
+        // *** 이미지 파일 url
 
-      const downloadURL = await getDownloadURL(imageRef);
+        const downloadURL = await getDownloadURL(imageRef);
 
-      // *** 도큐먼트에 이미지 추가
+        // *** 도큐먼트에 이미지 추가
 
-      await updateDoc(doc(db, "posts", docRef.id), {
-        image: downloadURL,
+        await updateDoc(doc(db, "posts", docRef.id), {
+          image: downloadURL,
+        });
       });
     }
 
@@ -100,7 +99,11 @@ const FeedEditor = () => {
   };
 
   return (
-    <div className="p-3 overflow-y-auto border-b border-gray-700 flex space-x-3">
+    <div
+      className={`p-3 overflow-y-auto border-b border-gray-700 flex space-x-3 ${
+        loading && "opacity-60"
+      }`}
+    >
       {/*  */}
       {/* GUIDE 프로필 사진 ============================================================================================================================================================== */}
 
@@ -147,56 +150,58 @@ const FeedEditor = () => {
 
         {/* GUIDE 버튼 목록 ========================================================================================================================================================== */}
 
-        <div className="flex items-center justify-between pt-2.5">
-          <div className="flex items-center">
-            {/*  */}
-            {/* TODO 사진 업로드 버튼 */}
+        {!loading && (
+          <div className="flex items-center justify-between pt-2.5">
+            <div className="flex items-center">
+              {/*  */}
+              {/* TODO 사진 업로드 버튼 */}
 
-            <div
-              onClick={() => filePickerRef.current.click()}
-              className="icon-editor-container"
+              <div
+                onClick={() => filePickerRef.current.click()}
+                className="icon-editor-container"
+              >
+                <PhotographIcon className="icon-editor" />
+                <input
+                  type="file"
+                  hidden
+                  ref={filePickerRef}
+                  onChange={onSelectImg}
+                />
+              </div>
+
+              {/*  */}
+              {/* TODO 차트 버튼 */}
+
+              <div className="icon-editor-container">
+                <ChartBarIcon className="icon-editor" />
+              </div>
+
+              {/*  */}
+              {/* TODO 이모지 버튼 */}
+
+              <div className="icon-editor-container">
+                <EmojiHappyIcon className="icon-editor" />
+              </div>
+
+              {/*  */}
+              {/* TODO 캘린더 버튼 */}
+
+              <div className="icon-editor-container">
+                <CalendarIcon className="icon-editor" />
+              </div>
+            </div>
+
+            {/* TODO 포스트 업로드 버튼 */}
+
+            <button
+              className="btn-tweet px-4 py-1.5"
+              disabled={(!input.trim() && !selectedImg) || loading}
+              onClick={createPost}
             >
-              <PhotographIcon className="icon-editor" />
-              <input
-                type="file"
-                hidden
-                ref={filePickerRef}
-                onChange={onSelectImg}
-              />
-            </div>
-
-            {/*  */}
-            {/* TODO 차트 버튼 */}
-
-            <div className="icon-editor-container">
-              <ChartBarIcon className="icon-editor" />
-            </div>
-
-            {/*  */}
-            {/* TODO 이모지 버튼 */}
-
-            <div className="icon-editor-container">
-              <EmojiHappyIcon className="icon-editor" />
-            </div>
-
-            {/*  */}
-            {/* TODO 캘린더 버튼 */}
-
-            <div className="icon-editor-container">
-              <CalendarIcon className="icon-editor" />
-            </div>
+              Tweet
+            </button>
           </div>
-
-          {/* TODO 포스트 업로드 버튼 */}
-
-          <button
-            className="btn-tweet px-4 py-1.5"
-            disabled={(!input.trim() && !selectedImg) || loading}
-            onClick={createPost}
-          >
-            Tweet
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
