@@ -1,7 +1,7 @@
 import FeedEditor from "./FeedEditor";
 import Topbar from "../../components/Topbar";
 import useGetPosts from "../../hooks/api/useGetPosts";
-import Post from "../../components/Post";
+import Post from "../post/Post";
 
 const Feed = () => {
   const posts = useGetPosts();

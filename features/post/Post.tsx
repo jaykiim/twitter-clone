@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 
 import Moment from "react-moment";
 
+// recoil
+import { useSetRecoilState } from "recoil";
+import { commentModalState } from "../../atoms/modal";
+
 // styles
 import {
   ChartBarIcon,
@@ -16,27 +20,29 @@ import {
 import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid";
 
 // types
-import { Post } from "../type";
+import { Post } from "../../type";
 import { deleteDoc, doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { useRouter } from "next/router";
-import useGetLikes from "../hooks/api/useGetLikes";
-import useGetComments from "../hooks/api/useGetComments";
+import useGetLikes from "../../hooks/api/useGetLikes";
+import useGetComments from "../../hooks/api/useGetComments";
+import PostMeta from "./PostMeta";
 
 type Props = {
   postId: string;
   post: Post;
-  postPage: boolean;
+  detail: boolean;
 };
 
-const Post = ({ postId, post, postPage }: Props) => {
+const Post = ({ postId, post, detail }: Props) => {
   const router = useRouter();
   const { user } = useSession().data!;
 
   const likes = useGetLikes(postId);
-  const comments = useGetComments(postId);
+  const comments = useGetComments(postId); // 코멘트 갯수 표시하기 위해
 
   const [liked, setLiked] = useState(false);
+  const setCommentModal = useSetRecoilState(commentModalState);
 
   // 현재 포스트에 대한 사용자의 liked 상태 변경
   useEffect(
@@ -52,6 +58,7 @@ const Post = ({ postId, post, postPage }: Props) => {
   const onCommentClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // 댓글 아이콘 클릭 시, 상세보기 이벤트 (전체 컨테이너 div 클릭) 전파 방지
     e.stopPropagation();
+    setCommentModal({ open: true, postId });
   };
 
   const onDeleteClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -93,42 +100,22 @@ const Post = ({ postId, post, postPage }: Props) => {
   return (
     <div className="flex p-3 border-b border-gray-700 cursor-pointer">
       {/*  */}
-      {/* IDEA 프로필 사진 (피드) */}
-      {!postPage && renderProfilePic()}
+      {/* TODO 프로필 사진 (피드) */}
+      {!detail && renderProfilePic()}
 
       <div className="flex flex-col space-y-2 w-full">
-        <div className={`flex ${!postPage && "justify-between"}`}>
+        <div className={`flex ${!detail && "justify-between"}`}>
           {/*  */}
           {/* IDEA 프로필 사진 (상세페이지) */}
-          {postPage && renderProfilePic()}
+          {detail && renderProfilePic()}
 
           <div className="text-gray-dark">
             {/*  */}
-            {/* GUIDE 작성자 정보 ====================================================================================================================================== */}
-            <div className="inline-block group">
-              <h4
-                className={`text-gray-light font-bold text-[15px] sm:text-base group-hover:underline ${
-                  !postPage && "inline-block"
-                }`}
-              >
-                {post.username}
-              </h4>
-              <span
-                className={`text-sm sm:text-[15px] ${!postPage && "ml-1.5"}`}
-              >
-                @{post.tag}
-              </span>
-            </div>{" "}
-            ·
-            {/* GUIDE 작성 시각 ====================================================================================================================================== */}
-            {/*  */}
-            <span className="hover:underline text-sm sm:text-[15px]">
-              {/* @ts-ignore */}
-              <Moment fromNow>{post.timestamp?.toDate()}</Moment>
-            </span>
-            {/*  */}
-            {/* IDEA 포스트 내용 (피드) */}
-            {!postPage && renderPostText()}
+            {/* TODO 작성자명 · 태그 · 작성 시각 */}
+            <PostMeta post={post} />
+
+            {/* TODO 포스트 내용 (피드) */}
+            {!detail && renderPostText()}
           </div>
 
           <div className="icon-editor-container group">
@@ -137,7 +124,7 @@ const Post = ({ postId, post, postPage }: Props) => {
         </div>
 
         {/* IDEA 포스트 내용 (상세페이지) */}
-        {postPage && renderPostText()}
+        {detail && renderPostText()}
 
         {post.image && (
           <img
@@ -151,13 +138,16 @@ const Post = ({ postId, post, postPage }: Props) => {
 
         <div
           className={`text-gray-dark flex justify-between w-10/12 ${
-            postPage && "mx-auto"
+            detail && "mx-auto"
           }`}
         >
           {/*  */}
           {/* TODO 댓글 */}
 
-          <div className="flex items-center space-x-1 group">
+          <div
+            onClick={onCommentClick}
+            className="flex items-center space-x-1 group"
+          >
             {/* 아이콘 */}
             <div className="icon-editor-container group-hover:bg-tweet-blue-light group-hover:bg-opacity-10">
               <ChatIcon className="icon-feed-blue" />
