@@ -2,6 +2,25 @@ import { FieldValue } from "firebase/firestore";
 
 export type Base64 = `data:image/${string};base64${string}`;
 
+export type TrendingResults = {
+  heading: string;
+  description: string;
+  img: string;
+  tags: string[];
+};
+
+export type FollowResults = {
+  userImg: string;
+  username: string;
+  tag: string;
+};
+
+export type PageProps = {
+  trendingResults: TrendingResults[];
+  followResults: FollowResults[];
+  providers: Providers;
+};
+
 export type Session = {
   user: {
     [index: string]: string;

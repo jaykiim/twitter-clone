@@ -15,18 +15,19 @@ import Login from "../../features/login/Login";
 import Topbar from "../../components/Topbar";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Post from "../../features/post/Post";
+import CommentModal from "../../features/comment/CommentModal";
+import Comment from "../../features/comment/Comment";
+import Widgets from "../../components/Widgets";
 
 // types
 import type { GetServerSideProps, NextPage } from "next";
-import { Providers } from "../../type";
-import CommentModal from "../../features/comment/CommentModal";
-import Comment from "../../features/comment/Comment";
+import { PageProps } from "../../type";
 
-type Props = {
-  providers: Providers;
-};
-
-const PostPage: NextPage<Props> = ({ providers }) => {
+const PostPage: NextPage<PageProps> = ({
+  trendingResults,
+  followResults,
+  providers,
+}) => {
   // hooks
   const { data: session } = useSession();
   const { id } = useRouter().query;
@@ -69,6 +70,11 @@ const PostPage: NextPage<Props> = ({ providers }) => {
           )}
         </div>
 
+        <Widgets
+          trendingResults={trendingResults}
+          followResults={followResults}
+        />
+
         {commentModal.open && <CommentModal />}
       </main>
     </div>
@@ -78,11 +84,21 @@ const PostPage: NextPage<Props> = ({ providers }) => {
 export default PostPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const trendingResults = await fetch("https://jsonkeeper.com/b/NKEV").then(
+    (res) => res.json()
+  );
+
+  const followResults = await fetch("https://jsonkeeper.com/b/WWMJ").then(
+    (res) => res.json()
+  );
+
   const providers = await getProviders();
   const session = await getSession(context);
 
   return {
     props: {
+      trendingResults,
+      followResults,
       providers,
       session,
     },

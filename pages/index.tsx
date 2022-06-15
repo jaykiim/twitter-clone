@@ -13,13 +13,14 @@ import CommentModal from "../features/comment/CommentModal";
 
 // types
 import type { GetServerSideProps, NextPage } from "next";
-import { Providers } from "../type";
+import { PageProps } from "../type";
+import Widgets from "../components/Widgets";
 
-type Props = {
-  providers: Providers;
-};
-
-const Home: NextPage<Props> = ({ providers }) => {
+const Home: NextPage<PageProps> = ({
+  trendingResults,
+  followResults,
+  providers,
+}) => {
   const { data: session } = useSession();
 
   const commentModal = useRecoilValue(commentModalState);
@@ -36,6 +37,10 @@ const Home: NextPage<Props> = ({ providers }) => {
       <main className="flex mx-auto max-w-[1500px] min-h-screen bg-black">
         <Sidebar />
         <Feed />
+        <Widgets
+          trendingResults={trendingResults}
+          followResults={followResults}
+        />
 
         {commentModal.open && <CommentModal />}
       </main>
@@ -44,11 +49,21 @@ const Home: NextPage<Props> = ({ providers }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const trendingResults = await fetch("https://jsonkeeper.com/b/NKEV").then(
+    (res) => res.json()
+  );
+
+  const followResults = await fetch("https://jsonkeeper.com/b/WWMJ").then(
+    (res) => res.json()
+  );
+
   const providers = await getProviders();
   const session = await getSession(context);
 
   return {
     props: {
+      trendingResults,
+      followResults,
       providers,
       session,
     },
