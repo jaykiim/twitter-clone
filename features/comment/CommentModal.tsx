@@ -1,26 +1,20 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useSession } from "next-auth/react";
 
 // recoil
 import { useRecoilState } from "recoil";
 import { commentModalState } from "../../atoms/modal";
 
+// hooks
+import useGetPost from "../../hooks/api/useGetPost";
+
+// components
+import PostMeta from "../post/PostMeta";
+import TweetEditor from "../../components/TweetEditor";
+
 // styles
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  CalendarIcon,
-  ChartBarIcon,
-  EmojiHappyIcon,
-  PhotographIcon,
-  XIcon,
-} from "@heroicons/react/outline";
-
-// types
-import { Post } from "../../type";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase";
-import Moment from "react-moment";
-import PostMeta from "../post/PostMeta";
+import { XIcon } from "@heroicons/react/outline";
 
 const CommentModal = () => {
   const { user } = useSession().data!;
@@ -29,18 +23,10 @@ const CommentModal = () => {
   const [commentModal, setCommentModal] = useRecoilState(commentModalState);
 
   // 포스트 내용
-  const [post, setPost] = useState<undefined | Post>();
+  const post = useGetPost();
 
-  // 댓글 입력
-  const [comment, setComment] = useState("");
-
-  // 포스트 내용 패치
-  useEffect(() =>
-    onSnapshot(doc(db, "posts", commentModal.postId), (snapshot) => {
-      const post = snapshot.data() as unknown;
-      setPost(post as Post);
-    })
-  );
+  // submit 로딩 상태
+  const [loading, setLoading] = useState(false);
 
   const handleModalClose = () => setCommentModal({ open: false, postId: "" });
 
@@ -136,56 +122,12 @@ const CommentModal = () => {
                     {/* GUIDE 우측 ========================================================================================================================================*/}
 
                     <div className="flex-grow mt-2">
-                      {/*  */}
-                      {/* TODO 텍스트 입력 */}
-
-                      <textarea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        rows={2}
-                        placeholder="Tweet your reply"
-                        className="bg-transparent outline-none text-gray-light text-lg placeholder-gray-500 tracking-wide w-full min-h-[80px]"
+                      <TweetEditor
+                        loading={loading}
+                        setLoading={setLoading}
+                        postId={commentModal.postId}
+                        comment
                       />
-
-                      {/* GUIDE 버튼 목록 ======================================================================================================================================== */}
-
-                      <div className="flex items-center justify-between pt-2.5">
-                        <div className="flex items-center">
-                          {/*  */}
-                          {/* TODO 사진 버튼 */}
-
-                          <div className="icon-editor-container">
-                            <PhotographIcon className="text-[#1d9bf0] h-[22px]" />
-                          </div>
-
-                          {/* TODO 차트 버튼 */}
-
-                          <div className="icon-editor-container">
-                            <ChartBarIcon className="text-[#1d9bf0] h-[22px]" />
-                          </div>
-
-                          {/* TODO 이모지 버튼 */}
-
-                          <div className="icon-editor-container">
-                            <EmojiHappyIcon className="text-[#1d9bf0] h-[22px]" />
-                          </div>
-
-                          {/* TODO 캘린더 버튼 */}
-
-                          <div className="icon-editor-container">
-                            <CalendarIcon className="text-[#1d9bf0] h-[22px]" />
-                          </div>
-                        </div>
-
-                        {/* TODO 댓글 추가 버튼 */}
-
-                        <button
-                          className="btn-tweet px-4 py-1.5"
-                          disabled={!comment.trim()}
-                        >
-                          Reply
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>

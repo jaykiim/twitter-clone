@@ -1,32 +1,28 @@
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-
-import Moment from "react-moment";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 // recoil
 import { useSetRecoilState } from "recoil";
 import { commentModalState } from "../../atoms/modal";
 
+// firebase
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+
+// hooks
+import useGetLikes from "../../hooks/api/useGetLikes";
+import useGetComments from "../../hooks/api/useGetComments";
+
+// components
+import PostMeta from "./PostMeta";
+import PostBtns from "../../components/btns/PostBtns";
+
 // styles
-import {
-  ChartBarIcon,
-  ChatIcon,
-  DotsHorizontalIcon,
-  HeartIcon,
-  ShareIcon,
-  SwitchHorizontalIcon,
-  TrashIcon,
-} from "@heroicons/react/outline";
-import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid";
+import { DotsHorizontalIcon } from "@heroicons/react/outline";
 
 // types
 import { Post } from "../../type";
-import { deleteDoc, doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase";
-import { useRouter } from "next/router";
-import useGetLikes from "../../hooks/api/useGetLikes";
-import useGetComments from "../../hooks/api/useGetComments";
-import PostMeta from "./PostMeta";
 
 type Props = {
   postId: string;
@@ -85,20 +81,27 @@ const Post = ({ postId, post, detail }: Props) => {
 
   const renderProfilePic = () => (
     <img
-      src={post.userImg}
+      src={post?.userImg}
       alt="writer's profile picture"
       className="circle-11 mr-4"
     />
   );
 
   const renderPostText = () => (
-    <p className="text-gray-light text-[15px] sm:text-base mt-0.5">
-      {post.text}
+    <p
+      className={`text-gray-light text-[15px] sm:text-base mt-0.5 ${
+        detail && "w-10/12 mx-auto"
+      }`}
+    >
+      {post?.text}
     </p>
   );
 
   return (
-    <div className="flex p-3 border-b border-gray-700 cursor-pointer">
+    <div
+      onClick={() => router.push(`/post/${postId}`)}
+      className="flex p-3 border-b border-gray-700 cursor-pointer"
+    >
       {/*  */}
       {/* TODO 프로필 사진 (피드) */}
       {!detail && renderProfilePic()}
@@ -118,7 +121,7 @@ const Post = ({ postId, post, detail }: Props) => {
             {!detail && renderPostText()}
           </div>
 
-          <div className="icon-editor-container group">
+          <div className="icon-editor-container group flex-shrink-0 ml-auto">
             <DotsHorizontalIcon className="text-gray-dark icon-feed-blue" />
           </div>
         </div>
@@ -126,9 +129,9 @@ const Post = ({ postId, post, detail }: Props) => {
         {/* IDEA 포스트 내용 (상세페이지) */}
         {detail && renderPostText()}
 
-        {post.image && (
+        {post?.image && (
           <img
-            src={post.image}
+            src={post?.image}
             alt="post-image"
             className="rounded-2xl max-h-[700px] object-cover mr-2"
           />
@@ -136,88 +139,10 @@ const Post = ({ postId, post, detail }: Props) => {
 
         {/* GUIDE 하단 버튼 ====================================================================================================================================== */}
 
-        <div
-          className={`text-gray-dark flex justify-between w-10/12 ${
-            detail && "mx-auto"
-          }`}
-        >
-          {/*  */}
-          {/* TODO 댓글 */}
-
-          <div
-            onClick={onCommentClick}
-            className="flex items-center space-x-1 group"
-          >
-            {/* 아이콘 */}
-            <div className="icon-editor-container group-hover:bg-tweet-blue-light group-hover:bg-opacity-10">
-              <ChatIcon className="icon-feed-blue" />
-            </div>
-
-            {/* 댓글 갯수 */}
-            {comments.length > 0 && (
-              <span className="group-hover:text-[#1d9bf0] text-sm">
-                {comments.length}
-              </span>
-            )}
-          </div>
-
-          {/* TODO 삭제 or 상세보기 */}
-
-          <div className="flex items-center space-x-1 group">
-            {/* @ts-ignore */}
-            {user.uid === post.id ? (
-              <div
-                onClick={onDeleteClick}
-                className="icon-editor-container group-hover:bg-red-600/10"
-              >
-                <TrashIcon className="h-5 group-hover:text-red-600" />
-              </div>
-            ) : (
-              <div className="icon-editor-container group-hover:bg-green-500/10">
-                <SwitchHorizontalIcon className="h-5 group-hover:text-green-500" />
-              </div>
-            )}
-          </div>
-
-          {/* TODO 좋아요 */}
-
-          <div
-            onClick={onLikeClick}
-            className="flex items-center space-x-1 group"
-          >
-            {/* 아이콘 */}
-            <div className="icon-editor-container group-hover:bg-pink-600/10">
-              {liked ? (
-                <HeartIconFilled className="h-5 text-pink-600" />
-              ) : (
-                <HeartIcon className="h-5 group-hover:text-pink-600" />
-              )}
-            </div>
-
-            {/* 좋아요 갯수 */}
-            {likes.length > 0 && (
-              <span
-                className={`group-hover:text-pink-600 text-sm ${
-                  liked && "text-pink-600"
-                }`}
-              >
-                {likes.length}
-              </span>
-            )}
-          </div>
-
-          {/* TODO 공유 */}
-
-          <div className="icon-editor-container group">
-            <ShareIcon className="icon-feed-blue" />
-          </div>
-
-          {/* TODO 차트 */}
-
-          <div className="icon-editor-container group">
-            <ChartBarIcon className="icon-feed-blue" />
-          </div>
-        </div>
+        <PostBtns
+          states={{ post, comments, likes, liked }}
+          handlers={{ onCommentClick, onDeleteClick, onLikeClick }}
+        />
       </div>
     </div>
   );

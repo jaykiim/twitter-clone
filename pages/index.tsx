@@ -9,11 +9,11 @@ import Head from "next/head";
 import Sidebar from "../components/sidebar/Sidebar";
 import Feed from "../features/feed/Feed";
 import Login from "../features/login/Login";
+import CommentModal from "../features/comment/CommentModal";
 
 // types
 import type { GetServerSideProps, NextPage } from "next";
 import { Providers } from "../type";
-import CommentModal from "../features/comment/CommentModal";
 
 type Props = {
   providers: Providers;

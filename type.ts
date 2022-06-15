@@ -11,12 +11,12 @@ export type Session = {
 
 export type Post = {
   id: string;
-  username: `${number}`;
+  username: string;
   userImg: string;
   tag: string;
   timestamp: FieldValue;
   text?: string;
-  image: string;
+  image?: string;
 };
 
 export type Like = {
@@ -25,12 +25,18 @@ export type Like = {
 };
 
 export type Comment = {
-  comment: string;
+  id: string;
   username: string;
-  tag: string;
   userImg: string;
+  tag: string;
   timestamp: FieldValue;
+  comment: string;
+  image?: string;
 };
+
+export type SetSelectedImg = React.Dispatch<
+  React.SetStateAction<Base64 | null>
+>;
 
 type GoogleProvider = {
   [key: string]: any;

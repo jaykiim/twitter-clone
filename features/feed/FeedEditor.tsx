@@ -1,102 +1,13 @@
-import React, { useRef, useState } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-// types
-import { Base64 } from "../../type";
-
-// firebase
-import { db, storage } from "../../firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
-
-// styles
-import {
-  EmojiHappyIcon,
-  PhotographIcon,
-  ChartBarIcon,
-  CalendarIcon,
-  XIcon,
-} from "@heroicons/react/outline";
+import TweetEditor from "../../components/TweetEditor";
 
 const FeedEditor = () => {
-  //
-  // input type="file" 엘리먼트 Ref
-  const filePickerRef = useRef<HTMLInputElement>(null!);
   const { user } = useSession().data!;
 
-  // 사용자 입력 텍스트
-  const [input, setInput] = useState("");
-
-  // 이미지 (dataURL)
-  const [selectedImg, setSelectedImg] = useState<Base64 | null>(null);
-
-  // fatch 로드 상태
+  // fetch 로드 상태
   const [loading, setLoading] = useState(false);
-
-  // TODO 이미지 dataURL 로 읽어오기
-
-  const onSelectImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    if (e.target.files) {
-      reader.readAsDataURL(e.target.files[0]);
-    }
-
-    reader.onload = (readerEvent) => {
-      setSelectedImg(readerEvent.target!.result as Base64);
-    };
-  };
-
-  // TODO 피드 POST 요청
-
-  const createPost = async () => {
-    if (loading) return;
-    setLoading(true);
-
-    // *** 컬렉션에 도큐먼트 추가
-    console.log("selectedImg", selectedImg);
-    const docRef = await addDoc(collection(db, "posts"), {
-      // @ts-ignore
-      id: user?.uid,
-      username: user?.name,
-      userImg: user?.image,
-      // @ts-ignore
-      tag: user?.tag,
-      text: input,
-      timestamp: serverTimestamp(),
-    });
-
-    // *** (이미지가 있을 경우) 이미지 파일 Ref
-
-    const imageRef = ref(storage, `posts/${docRef.id}/image`);
-
-    if (selectedImg) {
-      //
-      // *** 스토리지에 이미지 업로드
-
-      await uploadString(imageRef, selectedImg, "data_url").then(async () => {
-        //
-        // *** 이미지 파일 url
-
-        const downloadURL = await getDownloadURL(imageRef);
-
-        // *** 도큐먼트에 이미지 추가
-
-        await updateDoc(doc(db, "posts", docRef.id), {
-          image: downloadURL,
-        });
-      });
-    }
-
-    setLoading(false);
-    setInput("");
-    setSelectedImg(null);
-  };
 
   return (
     <div
@@ -112,97 +23,7 @@ const FeedEditor = () => {
         className="circle-11 cursor-pointer"
       />
 
-      <div className="w-full divide-y divide-gray-700">
-        {/*  */}
-        {/* GUIDE 포스트 입력 ============================================================================================================================================================== */}
-
-        <div className={`${selectedImg && "pb-7"} ${input && "space-y-2.5"}`}>
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            rows={2}
-            placeholder="What's happening?"
-            className="bg-transparent outline-none text-gray-light text-lg placeholder-gray-500 tracking-wide w-full min-h-[50px]"
-          />
-
-          {/* TODO 사진 */}
-
-          {selectedImg && (
-            <div className="relative">
-              {/*  */}
-              {/* TODO 닫기 버튼 */}
-
-              <div
-                onClick={() => setSelectedImg(null)}
-                className="absolute top-1 left-1 bg-[#15181c] bg-opacity-50 hover:bg-opacity-75 w-8 h-8 rounded-full center-xy cursor-pointer"
-              >
-                <XIcon className="text-white h-5" />
-              </div>
-
-              <img
-                src={selectedImg}
-                alt="uploaded-image"
-                className="rounded-2xl max-h-80 object-contain"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* GUIDE 버튼 목록 ========================================================================================================================================================== */}
-
-        {!loading && (
-          <div className="flex items-center justify-between pt-2.5">
-            <div className="flex items-center">
-              {/*  */}
-              {/* TODO 사진 업로드 버튼 */}
-
-              <div
-                onClick={() => filePickerRef.current.click()}
-                className="icon-editor-container"
-              >
-                <PhotographIcon className="icon-editor" />
-                <input
-                  type="file"
-                  hidden
-                  ref={filePickerRef}
-                  onChange={onSelectImg}
-                />
-              </div>
-
-              {/*  */}
-              {/* TODO 차트 버튼 */}
-
-              <div className="icon-editor-container">
-                <ChartBarIcon className="icon-editor" />
-              </div>
-
-              {/*  */}
-              {/* TODO 이모지 버튼 */}
-
-              <div className="icon-editor-container">
-                <EmojiHappyIcon className="icon-editor" />
-              </div>
-
-              {/*  */}
-              {/* TODO 캘린더 버튼 */}
-
-              <div className="icon-editor-container">
-                <CalendarIcon className="icon-editor" />
-              </div>
-            </div>
-
-            {/* TODO 포스트 업로드 버튼 */}
-
-            <button
-              className="btn-tweet px-4 py-1.5"
-              disabled={(!input.trim() && !selectedImg) || loading}
-              onClick={createPost}
-            >
-              Tweet
-            </button>
-          </div>
-        )}
-      </div>
+      <TweetEditor loading={loading} setLoading={setLoading} />
     </div>
   );
 };
