@@ -11,7 +11,6 @@ import Sidebar from "../components/Sidebar";
 import Widgets from "../components/Widgets";
 
 const Home = ({ trendingResults, followResults, providers }) => {
-  console.log("providers", providers);
   const { data: session } = useSession();
 
   const [isOpen, setIsOpen] = useRecoilState(modalState);

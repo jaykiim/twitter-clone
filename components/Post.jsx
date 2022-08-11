@@ -36,7 +36,6 @@ import {
 } from "@heroicons/react/solid";
 
 const Post = ({ id, post, postPage }) => {
-  console.log("post", post);
   const { data: session } = useSession();
   const router = useRouter();
 

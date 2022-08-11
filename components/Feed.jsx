@@ -19,7 +19,6 @@ const Feed = () => {
       onSnapshot(
         query(collection(db, "posts"), orderBy("timestamp", "desc")),
         (snapshot) => {
-          console.log("snapshot", snapshot);
           setPosts(snapshot.docs);
         }
       ),
